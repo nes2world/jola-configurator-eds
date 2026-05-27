@@ -13,7 +13,9 @@
  * when swapping in the real dropin later.
  */
 
-const COMMERCE_ENDPOINT = 'https://venia.magento.com/graphql';
+// Local dev proxies through server.js to avoid CORS.
+// In production, point to your Commerce instance directly.
+const COMMERCE_ENDPOINT = '/graphql';
 
 const PRODUCT_QUERY = `
   query ProductBySku($sku: String!) {

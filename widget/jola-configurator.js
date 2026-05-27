@@ -347,9 +347,15 @@ window.JolaConfigurator = {
       ? document.querySelector(options.el)
       : options.el;
     if (!el) throw new Error('JolaConfigurator: target element not found');
-    if (!options.product) throw new Error('JolaConfigurator: product SKU is required');
 
-    const product = await fetchProduct(options.apiKey || '', options.product);
+    // Accept pre-fetched product data or fetch from API
+    let product;
+    if (options.productData) {
+      product = options.productData;
+    } else {
+      if (!options.product) throw new Error('JolaConfigurator: product SKU or productData is required');
+      product = await fetchProduct(options.apiKey || '', options.product);
+    }
     return new Configurator(el, product, options);
   },
 };

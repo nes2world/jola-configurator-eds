@@ -13,6 +13,11 @@ const MIME = {
   '.jpg': 'image/jpeg', '.webp': 'image/webp',
 };
 
+// EDS sheets format: { total, offset, limit, data: [...rows] }
+function edsSheet(rows) {
+  return { total: rows.length, offset: 0, limit: rows.length, data: rows };
+}
+
 let catalog = null;
 async function getCatalog() {
   if (!catalog) {
@@ -24,15 +29,51 @@ async function getCatalog() {
 
 const server = http.createServer(async (req, res) => {
   const [path] = req.url.split('?');
+  res.setHeader('Access-Control-Allow-Origin', '*');
 
-  // API: /api/v1/products/:sku — the endpoint the widget calls
+  // Serve EDS-format sheet JSONs from product catalog
+  if (path === '/products.json' || path === '/models.json' || path === '/textures.json') {
+    const products = await getCatalog();
+    let rows;
+
+    if (path === '/products.json') {
+      rows = Object.values(products).map((p) => ({
+        sku: p.id,
+        name: p.name,
+        price: p.price,
+        currency: p.currency,
+        description: p.description,
+        defaultModel: p.defaultModel,
+        defaultTexture: p.textures?.[0]?.sku || '',
+      }));
+    } else if (path === '/models.json') {
+      rows = Object.values(products).flatMap((p) => p.models.map((m) => ({
+        product: p.id,
+        sku: m.sku,
+        name: m.name,
+      })));
+    } else {
+      rows = Object.values(products).flatMap((p) => p.textures.map((t) => ({
+        product: p.id,
+        sku: t.sku,
+        name: t.name,
+        color: t.color,
+        roughness: t.roughness,
+        metalness: t.metalness,
+      })));
+    }
+
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(edsSheet(rows)));
+    return;
+  }
+
+  // Legacy API endpoint (still used by widget in API mode)
   const apiMatch = path.match(/^\/api\/v1\/products\/([^/]+)$/);
   if (apiMatch) {
-    // In production: validate the API key from query param or Authorization header
     const sku = decodeURIComponent(apiMatch[1]);
     const products = await getCatalog();
     const product = products[sku];
-    res.setHeader('Access-Control-Allow-Origin', '*');
     if (!product) {
       res.writeHead(404, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'product_not_found' }));
@@ -60,6 +101,8 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`EDS local dev → http://localhost:${PORT}`);
-  console.log(`Widget API    → http://localhost:${PORT}/api/v1/products/lounge-001`);
+  console.log(`EDS local dev  → http://localhost:${PORT}`);
+  console.log(`Products sheet → http://localhost:${PORT}/products.json`);
+  console.log(`Models sheet   → http://localhost:${PORT}/models.json`);
+  console.log(`Textures sheet → http://localhost:${PORT}/textures.json`);
 });

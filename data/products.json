@@ -1,21 +1,109 @@
 {
   "lounge-001": {
-    "id": "lounge-001",
+    "id": 1001,
+    "sku": "lounge-001",
     "name": "Aurora Lounge Chair",
-    "price": 1290,
-    "currency": "USD",
-    "description": "Sculpted silhouette with a hand-finished frame. Available in three styles and four fabrics.",
-    "defaultModel": "chair",
-    "models": [
-      { "sku": "chair",    "name": "Lounge Chair" },
-      { "sku": "armchair", "name": "Armchair" },
-      { "sku": "sofa",     "name": "2-seater Sofa" }
+    "description": {
+      "html": "<p>Sculpted silhouette with a hand-finished frame. Available in three styles and four fabrics.</p>"
+    },
+    "price_range": {
+      "minimum_price": {
+        "regular_price": { "value": 1290, "currency": "USD" }
+      }
+    },
+    "media_gallery": [
+      { "url": "/icons/placeholder.svg", "label": "Aurora Lounge Chair" }
     ],
-    "textures": [
-      { "sku": "linen-beige",    "name": "Linen Beige",    "color": "#d8c9a8", "roughness": 0.92, "metalness": 0.0 },
-      { "sku": "velvet-emerald", "name": "Velvet Emerald", "color": "#0f5132", "roughness": 0.45, "metalness": 0.1 },
-      { "sku": "leather-cognac", "name": "Cognac Leather", "color": "#8b4513", "roughness": 0.40, "metalness": 0.05 },
-      { "sku": "wool-charcoal",  "name": "Wool Charcoal",  "color": "#2b2b2b", "roughness": 0.95, "metalness": 0.0 }
-    ]
+    "custom_attributes": [
+      { "attribute_code": "jola_default_model", "value": "chair" },
+      { "attribute_code": "jola_default_texture", "value": "linen-beige" }
+    ],
+    "configurable_options": [
+      {
+        "attribute_code": "jola_model",
+        "label": "Style",
+        "values": [
+          { "value_index": 1, "label": "Lounge Chair", "swatch_data": { "value": "chair" } },
+          { "value_index": 2, "label": "Armchair",     "swatch_data": { "value": "armchair" } },
+          { "value_index": 3, "label": "2-seater Sofa","swatch_data": { "value": "sofa" } }
+        ]
+      },
+      {
+        "attribute_code": "jola_texture",
+        "label": "Texture",
+        "values": [
+          { "value_index": 10, "label": "Linen Beige",    "swatch_data": { "type": "color", "value": "#d8c9a8" } },
+          { "value_index": 11, "label": "Velvet Emerald",  "swatch_data": { "type": "color", "value": "#0f5132" } },
+          { "value_index": 12, "label": "Cognac Leather",  "swatch_data": { "type": "color", "value": "#8b4513" } },
+          { "value_index": 13, "label": "Wool Charcoal",   "swatch_data": { "type": "color", "value": "#2b2b2b" } }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "product": { "sku": "lounge-001-chair-linen",    "name": "Aurora Lounge Chair / Linen Beige",   "price_range": { "minimum_price": { "regular_price": { "value": 1290, "currency": "USD" }}} },
+        "attributes": [
+          { "code": "jola_model",   "value_index": 1, "label": "Lounge Chair" },
+          { "code": "jola_texture", "value_index": 10, "label": "Linen Beige" }
+        ]
+      },
+      {
+        "product": { "sku": "lounge-001-chair-emerald",  "name": "Aurora Lounge Chair / Velvet Emerald", "price_range": { "minimum_price": { "regular_price": { "value": 1390, "currency": "USD" }}} },
+        "attributes": [
+          { "code": "jola_model",   "value_index": 1, "label": "Lounge Chair" },
+          { "code": "jola_texture", "value_index": 11, "label": "Velvet Emerald" }
+        ]
+      },
+      {
+        "product": { "sku": "lounge-001-chair-cognac",   "name": "Aurora Lounge Chair / Cognac Leather", "price_range": { "minimum_price": { "regular_price": { "value": 1490, "currency": "USD" }}} },
+        "attributes": [
+          { "code": "jola_model",   "value_index": 1, "label": "Lounge Chair" },
+          { "code": "jola_texture", "value_index": 12, "label": "Cognac Leather" }
+        ]
+      },
+      {
+        "product": { "sku": "lounge-001-chair-charcoal", "name": "Aurora Lounge Chair / Wool Charcoal",  "price_range": { "minimum_price": { "regular_price": { "value": 1290, "currency": "USD" }}} },
+        "attributes": [
+          { "code": "jola_model",   "value_index": 1, "label": "Lounge Chair" },
+          { "code": "jola_texture", "value_index": 13, "label": "Wool Charcoal" }
+        ]
+      },
+      {
+        "product": { "sku": "lounge-001-arm-linen",      "name": "Aurora Armchair / Linen Beige",        "price_range": { "minimum_price": { "regular_price": { "value": 1490, "currency": "USD" }}} },
+        "attributes": [
+          { "code": "jola_model",   "value_index": 2, "label": "Armchair" },
+          { "code": "jola_texture", "value_index": 10, "label": "Linen Beige" }
+        ]
+      },
+      {
+        "product": { "sku": "lounge-001-arm-emerald",    "name": "Aurora Armchair / Velvet Emerald",     "price_range": { "minimum_price": { "regular_price": { "value": 1590, "currency": "USD" }}} },
+        "attributes": [
+          { "code": "jola_model",   "value_index": 2, "label": "Armchair" },
+          { "code": "jola_texture", "value_index": 11, "label": "Velvet Emerald" }
+        ]
+      },
+      {
+        "product": { "sku": "lounge-001-sofa-linen",     "name": "Aurora 2-seater Sofa / Linen Beige",   "price_range": { "minimum_price": { "regular_price": { "value": 2490, "currency": "USD" }}} },
+        "attributes": [
+          { "code": "jola_model",   "value_index": 3, "label": "2-seater Sofa" },
+          { "code": "jola_texture", "value_index": 10, "label": "Linen Beige" }
+        ]
+      },
+      {
+        "product": { "sku": "lounge-001-sofa-emerald",   "name": "Aurora 2-seater Sofa / Velvet Emerald","price_range": { "minimum_price": { "regular_price": { "value": 2590, "currency": "USD" }}} },
+        "attributes": [
+          { "code": "jola_model",   "value_index": 3, "label": "2-seater Sofa" },
+          { "code": "jola_texture", "value_index": 11, "label": "Velvet Emerald" }
+        ]
+      }
+    ],
+    "jola_3d": {
+      "textures": {
+        "linen-beige":    { "color": "#d8c9a8", "roughness": 0.92, "metalness": 0.0 },
+        "velvet-emerald": { "color": "#0f5132", "roughness": 0.45, "metalness": 0.1 },
+        "leather-cognac": { "color": "#8b4513", "roughness": 0.40, "metalness": 0.05 },
+        "wool-charcoal":  { "color": "#2b2b2b", "roughness": 0.95, "metalness": 0.0 }
+      }
+    }
   }
 }

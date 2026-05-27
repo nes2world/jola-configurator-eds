@@ -13,11 +13,6 @@ const MIME = {
   '.jpg': 'image/jpeg', '.webp': 'image/webp',
 };
 
-// EDS sheets format: { total, offset, limit, data: [...rows] }
-function edsSheet(rows) {
-  return { total: rows.length, offset: 0, limit: rows.length, data: rows };
-}
-
 let catalog = null;
 async function getCatalog() {
   if (!catalog) {
@@ -27,60 +22,62 @@ async function getCatalog() {
   return catalog;
 }
 
+function readBody(req) {
+  return new Promise((resolve) => {
+    let body = '';
+    req.on('data', (chunk) => { body += chunk; });
+    req.on('end', () => resolve(body));
+  });
+}
+
+async function handleGraphQL(req, res) {
+  const body = JSON.parse(await readBody(req));
+  const { query = '' } = body;
+  const products = await getCatalog();
+
+  // Parse SKU filter from query: filter: { sku: { eq: "..." } }
+  const skuMatch = query.match(/sku\s*:\s*\{\s*eq\s*:\s*"([^"]+)"/);
+  // Parse search term: search: "..."
+  const searchMatch = query.match(/search\s*:\s*"([^"]*)"/);
+
+  let items = [];
+
+  if (skuMatch) {
+    const product = products[skuMatch[1]];
+    if (product) items = [product];
+  } else if (searchMatch) {
+    const term = searchMatch[1].toLowerCase();
+    items = Object.values(products).filter((p) => p.name.toLowerCase().includes(term) || p.sku.includes(term));
+  } else {
+    items = Object.values(products);
+  }
+
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({
+    data: {
+      products: {
+        items,
+        total_count: items.length,
+      },
+    },
+  }));
+}
+
 const server = http.createServer(async (req, res) => {
   const [path] = req.url.split('?');
   res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Store, Magento-Environment-Id');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
 
-  // Serve EDS-format sheet JSONs from product catalog
-  if (path === '/products.json' || path === '/models.json' || path === '/textures.json') {
-    const products = await getCatalog();
-    let rows;
-
-    if (path === '/products.json') {
-      rows = Object.values(products).map((p) => ({
-        sku: p.id,
-        name: p.name,
-        price: p.price,
-        currency: p.currency,
-        description: p.description,
-        defaultModel: p.defaultModel,
-        defaultTexture: p.textures?.[0]?.sku || '',
-      }));
-    } else if (path === '/models.json') {
-      rows = Object.values(products).flatMap((p) => p.models.map((m) => ({
-        product: p.id,
-        sku: m.sku,
-        name: m.name,
-      })));
-    } else {
-      rows = Object.values(products).flatMap((p) => p.textures.map((t) => ({
-        product: p.id,
-        sku: t.sku,
-        name: t.name,
-        color: t.color,
-        roughness: t.roughness,
-        metalness: t.metalness,
-      })));
-    }
-
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(edsSheet(rows)));
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204);
+    res.end();
     return;
   }
 
-  // Legacy API endpoint (still used by widget in API mode)
-  const apiMatch = path.match(/^\/api\/v1\/products\/([^/]+)$/);
-  if (apiMatch) {
-    const sku = decodeURIComponent(apiMatch[1]);
-    const products = await getCatalog();
-    const product = products[sku];
-    if (!product) {
-      res.writeHead(404, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'product_not_found' }));
-      return;
-    }
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(product));
+  // Mock Adobe Commerce GraphQL endpoint
+  if (path === '/graphql' && req.method === 'POST') {
+    await handleGraphQL(req, res);
     return;
   }
 
@@ -101,8 +98,6 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`EDS local dev  → http://localhost:${PORT}`);
-  console.log(`Products sheet → http://localhost:${PORT}/products.json`);
-  console.log(`Models sheet   → http://localhost:${PORT}/models.json`);
-  console.log(`Textures sheet → http://localhost:${PORT}/textures.json`);
+  console.log(`EDS local dev     → http://localhost:${PORT}`);
+  console.log(`Commerce GraphQL  → http://localhost:${PORT}/graphql`);
 });

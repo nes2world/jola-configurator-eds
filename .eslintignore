@@ -1,3 +1,6 @@
 helix-importer-ui
 server.js
 widget/
+plugins/experimentation/tests/
+plugins/experimentation/playwright.config.js
+scripts/sidekick.js

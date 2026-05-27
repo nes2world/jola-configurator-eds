@@ -1,0 +1,21 @@
+{
+  "lounge-001": {
+    "id": "lounge-001",
+    "name": "Aurora Lounge Chair",
+    "price": 1290,
+    "currency": "USD",
+    "description": "Sculpted silhouette with a hand-finished frame. Available in three styles and four fabrics.",
+    "defaultModel": "chair",
+    "models": [
+      { "sku": "chair",    "name": "Lounge Chair" },
+      { "sku": "armchair", "name": "Armchair" },
+      { "sku": "sofa",     "name": "2-seater Sofa" }
+    ],
+    "textures": [
+      { "sku": "linen-beige",    "name": "Linen Beige",    "color": "#d8c9a8", "roughness": 0.92, "metalness": 0.0 },
+      { "sku": "velvet-emerald", "name": "Velvet Emerald", "color": "#0f5132", "roughness": 0.45, "metalness": 0.1 },
+      { "sku": "leather-cognac", "name": "Cognac Leather", "color": "#8b4513", "roughness": 0.40, "metalness": 0.05 },
+      { "sku": "wool-charcoal",  "name": "Wool Charcoal",  "color": "#2b2b2b", "roughness": 0.95, "metalness": 0.0 }
+    ]
+  }
+}

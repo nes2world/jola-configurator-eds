@@ -251,6 +251,19 @@
     ]
   },
   {
+    "id": "furniture-viewer",
+    "fields": [
+      {
+        "component": "text",
+        "name": "sku",
+        "label": "Product SKU",
+        "valueType": "string",
+        "required": true,
+        "description": "The product identifier from the Commerce catalog (e.g. lounge-001)"
+      }
+    ]
+  },
+  {
     "id": "video",
     "fields": [
       {

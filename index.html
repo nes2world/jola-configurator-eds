@@ -1,0 +1,224 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Aurora Lounge Chair — Reference PDP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="/scripts/aem.js" type="module"></script>
+  <script src="/scripts/scripts.js" type="module"></script>
+  <link rel="stylesheet" href="/styles/styles.css">
+  <style>
+    /* ── Reference PDP layout ──
+       This is the CLIENT's own CSS — they style their page however they want.
+       The Jola widget only renders inside the viewer div. */
+
+    .pdp {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 1120px; margin: 40px auto; padding: 0 24px;
+      display: grid; grid-template-columns: 1.4fr 1fr; gap: 36px;
+      color: #1a1a1a;
+    }
+
+    .pdp-viewer { aspect-ratio: 4 / 3; border-radius: 10px; overflow: hidden; }
+
+    .pdp-viewer-toolbar {
+      display: flex; gap: 10px; align-items: center;
+      margin-top: 10px; font-size: 13px; color: #6b6b6b;
+    }
+    .pdp-viewer-toolbar button {
+      background: transparent; border: 1px solid #e0e0e0; padding: 6px 12px;
+      border-radius: 4px; cursor: pointer; font-size: 13px;
+    }
+    .pdp-viewer-toolbar button:hover { border-color: #1a1a1a; }
+    .pdp-viewer-toolbar label { display: inline-flex; gap: 5px; align-items: center; cursor: pointer; }
+
+    .pdp-info h1 { font-size: 28px; font-weight: 500; margin: 0 0 6px; }
+    .pdp-price { font-size: 22px; margin: 0 0 14px; }
+    .pdp-desc { color: #6b6b6b; line-height: 1.55; margin: 0 0 24px; font-size: 15px; }
+
+    .pdp-picker { margin-bottom: 20px; }
+    .pdp-picker h3 {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+      color: #6b6b6b; margin: 0 0 8px; font-weight: 600;
+    }
+
+    .pdp-models { display: flex; gap: 8px; flex-wrap: wrap; }
+    .pdp-models button {
+      background: transparent; border: 1px solid #e0e0e0; padding: 7px 14px;
+      border-radius: 999px; cursor: pointer; font-size: 13px; transition: all 0.15s;
+    }
+    .pdp-models button:hover { border-color: #1a1a1a; }
+    .pdp-models button[aria-pressed="true"] {
+      border-color: #1a1a1a; background: #1a1a1a; color: #fff;
+    }
+
+    .pdp-textures { display: flex; gap: 9px; flex-wrap: wrap; }
+    .pdp-swatch {
+      width: 34px; height: 34px; border-radius: 50%; border: 2px solid transparent;
+      cursor: pointer; padding: 0; box-shadow: inset 0 0 0 1px rgb(0 0 0 / 8%);
+      transition: transform 0.1s;
+    }
+    .pdp-swatch:hover { transform: scale(1.08); }
+    .pdp-swatch[aria-pressed="true"] { border-color: #1a1a1a; }
+    .pdp-texture-name { font-size: 13px; color: #6b6b6b; margin: 10px 0 0; }
+
+    .pdp-cta {
+      margin-top: 8px; width: 100%; background: #1a1a1a; color: #fff; border: none;
+      padding: 13px; border-radius: 4px; font-size: 14px; cursor: pointer;
+      letter-spacing: 0.02em;
+    }
+    .pdp-cta:hover { background: #000; }
+
+    .pdp-debug {
+      margin-top: 16px; padding: 12px; background: #f8f8f8; border-radius: 6px;
+      font-size: 12px; font-family: monospace; color: #555;
+    }
+    .pdp-debug pre { margin: 4px 0 0; white-space: pre-wrap; }
+
+    @media (max-width: 700px) {
+      .pdp { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header></header>
+  <main>
+    <!--
+      REFERENCE PDP — shows how a client builds their own product page
+      and hooks into the Jola headless configurator.
+
+      The widget only renders the 3D canvas. Everything else — product info,
+      pickers, cart button — is the client's own markup and logic.
+    -->
+    <div class="pdp">
+      <!-- Left: 3D viewer (widget renders here) -->
+      <div>
+        <div id="jola-viewer" class="pdp-viewer"></div>
+        <div class="pdp-viewer-toolbar">
+          <button id="btn-reset">Reset view</button>
+          <button id="btn-screenshot">Screenshot</button>
+          <label><input type="checkbox" id="chk-rotate" checked> Auto-rotate</label>
+        </div>
+      </div>
+
+      <!-- Right: client-owned PDP UI -->
+      <div class="pdp-info">
+        <h1 id="product-name">Loading…</h1>
+        <p class="pdp-price" id="product-price"></p>
+        <p class="pdp-desc" id="product-desc"></p>
+
+        <div class="pdp-picker">
+          <h3>Style</h3>
+          <div class="pdp-models" id="model-picker"></div>
+        </div>
+
+        <div class="pdp-picker">
+          <h3>Texture</h3>
+          <div class="pdp-textures" id="texture-picker"></div>
+          <p class="pdp-texture-name" id="texture-name"></p>
+        </div>
+
+        <button class="pdp-cta" id="btn-cart">Add to cart</button>
+
+        <div class="pdp-debug">
+          <strong>SKU state (from widget events):</strong>
+          <pre id="debug-state">—</pre>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      /*
+       * CLIENT INTEGRATION EXAMPLE
+       *
+       * 1. Load the widget
+       * 2. Create the headless viewer (canvas only)
+       * 3. Fetch product data separately for your own UI
+       * 4. Wire your pickers to viewer.setModel() / viewer.setTexture()
+       * 5. Listen to viewer.on('change') for SKU updates
+       */
+
+      // 1. Load the widget
+      await import('/widget/jola-configurator.js');
+
+      // 2. Fetch product data for our own UI (same API the widget uses)
+      const SKU = 'lounge-001';
+      const product = await fetch(`/api/v1/products/${SKU}`).then((r) => r.json());
+
+      // 3. Populate product info
+      document.getElementById('product-name').textContent = product.name;
+      document.getElementById('product-price').textContent = new Intl.NumberFormat('en-US', {
+        style: 'currency', currency: product.currency,
+      }).format(product.price);
+      document.getElementById('product-desc').textContent = product.description;
+
+      // 4. Build model picker
+      const modelPicker = document.getElementById('model-picker');
+      product.models.forEach((m) => {
+        const btn = document.createElement('button');
+        btn.textContent = m.name;
+        btn.dataset.sku = m.sku;
+        btn.setAttribute('aria-pressed', m.sku === product.defaultModel);
+        btn.addEventListener('click', () => viewer.setModel(m.sku));
+        modelPicker.append(btn);
+      });
+
+      // 5. Build texture picker
+      const texturePicker = document.getElementById('texture-picker');
+      const textureName = document.getElementById('texture-name');
+      product.textures.forEach((t, i) => {
+        const sw = document.createElement('button');
+        sw.className = 'pdp-swatch';
+        sw.title = t.name;
+        sw.dataset.sku = t.sku;
+        sw.style.background = t.color;
+        sw.setAttribute('aria-pressed', i === 0);
+        if (i === 0) textureName.textContent = t.name;
+        sw.addEventListener('click', () => viewer.setTexture(t.sku));
+        texturePicker.append(sw);
+      });
+
+      // 6. Create the headless viewer
+      const viewer = await window.JolaConfigurator.create({
+        el: '#jola-viewer',
+        apiKey: 'demo-key-001',
+        product: SKU,
+      });
+
+      // 7. Listen for change events — update our UI from the SKU payload
+      viewer.on('change', (config) => {
+        // Update model picker state
+        modelPicker.querySelectorAll('button').forEach((btn) => {
+          btn.setAttribute('aria-pressed', btn.dataset.sku === config.modelSku);
+        });
+
+        // Update texture picker state
+        texturePicker.querySelectorAll('button').forEach((sw) => {
+          sw.setAttribute('aria-pressed', sw.dataset.sku === config.textureSku);
+        });
+        const activeTexture = product.textures.find((t) => t.sku === config.textureSku);
+        if (activeTexture) textureName.textContent = activeTexture.name;
+
+        // Debug: show raw SKU state
+        document.getElementById('debug-state').textContent = JSON.stringify(config, null, 2);
+      });
+
+      // 8. Wire toolbar to viewer API
+      document.getElementById('btn-reset').addEventListener('click', () => viewer.resetCamera());
+      document.getElementById('btn-screenshot').addEventListener('click', () => {
+        const url = viewer.screenshot();
+        const a = document.createElement('a');
+        a.href = url; a.download = 'furniture.png'; a.click();
+      });
+      document.getElementById('chk-rotate').addEventListener('change', (e) => {
+        viewer.setAutoRotate(e.target.checked);
+      });
+      document.getElementById('btn-cart').addEventListener('click', () => {
+        const config = viewer.getConfiguration();
+        alert(`Add to cart:\n${JSON.stringify(config, null, 2)}`);
+      });
+    </script>
+  </main>
+  <footer></footer>
+</body>
+</html>

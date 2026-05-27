@@ -1,0 +1,18 @@
+/* Headless viewer — only the canvas container needs sizing.
+   All product UI is owned by the client page. */
+
+.furniture-viewer-container {
+  max-width: unset;
+}
+
+.furniture-viewer-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+.furniture-viewer {
+  aspect-ratio: 4 / 3;
+  border-radius: 10px;
+  overflow: hidden;
+}

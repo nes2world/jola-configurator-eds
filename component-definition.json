@@ -347,6 +347,24 @@
           }
         },
         {
+          "title": "Furniture Viewer",
+          "id": "furniture-viewer",
+          "model": "furniture-viewer",
+          "plugins": {
+            "da": {
+              "name": "furniture-viewer",
+              "rows": 1,
+              "columns": 1,
+              "fields": [
+                {
+                  "name": "sku",
+                  "selector": "div>div"
+                }
+              ]
+            }
+          }
+        },
+        {
           "title": "Video",
           "id": "video",
           "model": "video",
